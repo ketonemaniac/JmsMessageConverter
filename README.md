@@ -1,6 +1,6 @@
 # JMS Message Convertor
 
-Using the good old Spring JMS to recieve/convert messages (since the actual implementation is not using RabbitMQ)
+Using the good old Spring JMS to receive/convert messages (since actually the real thing is on some JMS 2.0 compliant MQ)
 
 ### Reference Documentation
 Modified from the tutorial https://tanzu.vmware.com/content/blog/messaging-with-jms-and-rabbitmq
@@ -11,12 +11,12 @@ https://stackoverflow.com/questions/52819237/how-to-add-plugin-to-rabbitmq-docke
 
 - Prepare custom image:
 
-Dockerfile
+#### Dockerfile
 
   FROM rabbitmq:3.7.18-management
   RUN rabbitmq-plugins enable rabbitmq_delayed_message_exchange
 
-docker-composer.yml
+#### docker-composer.yml
 
 rabbitmq:
   image: rabbitmq-custom

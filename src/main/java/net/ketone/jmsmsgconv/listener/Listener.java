@@ -1,6 +1,7 @@
 package net.ketone.jmsmsgconv.listener;
 
 import lombok.extern.slf4j.Slf4j;
+import net.ketone.jmsmsgconv.entities.FlightSchedule;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
@@ -9,8 +10,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class Listener {
 
-    @JmsListener(destination = "rabbit-trader-channel")
-    public void SampleJmsListenerMethod(Message<String> order) {
-        log.info("Received " + order.getPayload());
+//    @JmsListener(destination = "rabbit-trader-channel")
+    public void handleMessage(FlightSchedule fightSchedule) {
+        log.info("Received " + fightSchedule);
     }
 }
