@@ -6,6 +6,7 @@ import com.rabbitmq.jms.client.message.RMQObjectMessage;
 import lombok.extern.slf4j.Slf4j;
 import net.ketone.jmsmsgconv.entities.FlightSchedule;
 import net.ketone.jmsmsgconv.listener.Listener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +32,8 @@ public class JmsConfiguration implements JmsListenerConfigurer {
 
     @Value("${queueName}")
     private String queueName;
-
+    @Autowired
+    private Listener listener;
 
     private final XmlMapper xmlMapper = new XmlMapper();
 
@@ -50,7 +52,7 @@ public class JmsConfiguration implements JmsListenerConfigurer {
 
     @Override
     public void configureJmsListeners(JmsListenerEndpointRegistrar jmsListenerEndpointRegistrar) {
-        MessageListenerAdapter messageListener = new MessageListenerAdapter(new Listener());
+        MessageListenerAdapter messageListener = new MessageListenerAdapter(listener);
 
         /**
          * This is JMS 1.1 compliant only.
