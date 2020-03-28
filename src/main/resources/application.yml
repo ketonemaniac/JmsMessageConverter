@@ -1,1 +1,5 @@
-queueName: rabbit-trader-channel
+app:
+  jms:
+    endpoints:
+    - queueName: rabbit-trader-channel
+    - queueName: rabbit-second-channel

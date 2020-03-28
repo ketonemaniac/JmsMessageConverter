@@ -30,10 +30,10 @@ import java.io.IOException;
 @Slf4j
 public class JmsConfiguration implements JmsListenerConfigurer {
 
-    @Value("${queueName}")
-    private String queueName;
     @Autowired
     private Listener listener;
+    @Autowired
+    private JmsConfigurationProperties properties;
 
     private final XmlMapper xmlMapper = new XmlMapper();
 
@@ -52,39 +52,42 @@ public class JmsConfiguration implements JmsListenerConfigurer {
 
     @Override
     public void configureJmsListeners(JmsListenerEndpointRegistrar jmsListenerEndpointRegistrar) {
-        MessageListenerAdapter messageListener = new MessageListenerAdapter(listener);
 
-        /**
-         * This is JMS 1.1 compliant only.
-         */
-        messageListener.setMessageConverter(new MessageConverter() {
-            @Override
-            public Message toMessage(Object o, Session session) throws JMSException, MessageConversionException {
-                throw new RuntimeException();
-            }
+        for(JmsConfigurationProperties.Endpoint jmsEndpoint : properties.getEndpoints()) {
+            MessageListenerAdapter messageListener = new MessageListenerAdapter(listener);
 
-            @Override
-            public Object fromMessage(Message message) throws JMSException, MessageConversionException {
-                FlightSchedule schedule = FlightSchedule.builder().build();
-                String body = ((RMQObjectMessage) message).getObject().toString();
-                try {
-                    schedule = xmlMapper.readValue(body, FlightSchedule.class);
-                } catch (IOException e) {
-                    e.printStackTrace();
+            /**
+             * This is JMS 1.1 compliant only.
+             */
+            messageListener.setMessageConverter(new MessageConverter() {
+                @Override
+                public Message toMessage(Object o, Session session) throws JMSException, MessageConversionException {
+                    throw new RuntimeException();
                 }
-                schedule.setTimestamp(message.getJMSTimestamp());
-                return schedule;
-            }
-        });
 
-        SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
-        endpoint.setId(queueName+"Endpoint");
-        endpoint.setDestination(queueName);
-        endpoint.setMessageListener(messageListener);
+                @Override
+                public Object fromMessage(Message message) throws JMSException, MessageConversionException {
+                    FlightSchedule schedule = FlightSchedule.builder().build();
+                    String body = ((RMQObjectMessage) message).getObject().toString();
+                    try {
+                        schedule = xmlMapper.readValue(body, FlightSchedule.class);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    schedule.setTimestamp(message.getJMSTimestamp());
+                    schedule.setSource(message.getJMSDestination().toString());
+                    return schedule;
+                }
+            });
 
-        jmsListenerEndpointRegistrar.registerEndpoint(endpoint,jmsListenerContainerFactory(connectionFactory()));
+            SimpleJmsListenerEndpoint endpoint = new SimpleJmsListenerEndpoint();
+            endpoint.setId(jmsEndpoint.getQueueName() + "Endpoint");
+            endpoint.setDestination(jmsEndpoint.getQueueName());
+            endpoint.setMessageListener(messageListener);
 
+            jmsListenerEndpointRegistrar.registerEndpoint(endpoint, jmsListenerContainerFactory(connectionFactory()));
 
+        }
     }
 
     /**

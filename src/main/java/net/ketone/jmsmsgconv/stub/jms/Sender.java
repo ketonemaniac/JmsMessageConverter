@@ -2,6 +2,7 @@ package net.ketone.jmsmsgconv.stub.jms;
 
 import com.fasterxml.jackson.xml.XmlMapper;
 import lombok.extern.slf4j.Slf4j;
+import net.ketone.jmsmsgconv.config.JmsConfigurationProperties;
 import net.ketone.jmsmsgconv.entities.FlightSchedule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
@@ -20,6 +21,9 @@ import java.util.List;
 @Component
 @Slf4j
 public class Sender {
+
+    @Autowired
+    private JmsConfigurationProperties properties;
 
     private final XmlMapper xmlMapper = new XmlMapper();
 
@@ -55,7 +59,12 @@ public class Sender {
             }
         };
 
-        jmsTemplate.send("rabbit-trader-channel", messageCreator);
+
+        if (((int) (Math.random() *10000)) % 2 == 0){
+            jmsTemplate.send("rabbit-trader-channel", messageCreator);
+        } else {
+            jmsTemplate.send("rabbit-second-channel", messageCreator);
+        }
     }
 
 }
