@@ -34,6 +34,10 @@ public class JmsConfiguration implements JmsListenerConfigurer {
     private Listener listener;
     @Autowired
     private JmsConfigurationProperties properties;
+    @Value("${spring.rabbitmq.host}")
+    private String host;
+    @Value("${spring.rabbitmq.port}")
+    private int port;
 
     private final XmlMapper xmlMapper = new XmlMapper();
 
@@ -97,6 +101,10 @@ public class JmsConfiguration implements JmsListenerConfigurer {
     @Bean
     ConnectionFactory connectionFactory() {
         RMQConnectionFactory factory = new RMQConnectionFactory();
+        factory.setHost(host);
+        factory.setPort(port);
+        factory.setUsername("guest");
+        factory.setPassword("guest");
         return factory;
     }
 

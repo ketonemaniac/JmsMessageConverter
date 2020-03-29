@@ -3,3 +3,8 @@ app:
     endpoints:
     - queueName: rabbit-trader-channel
     - queueName: rabbit-second-channel
+
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672

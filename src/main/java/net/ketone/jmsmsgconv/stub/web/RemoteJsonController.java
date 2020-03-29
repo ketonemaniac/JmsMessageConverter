@@ -1,5 +1,7 @@
 package net.ketone.jmsmsgconv.stub.web;
 
+import net.ketone.jmsmsgconv.entities.FlightSchedule;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,31 +16,23 @@ import javax.annotation.PostConstruct;
 @RestController
 public class RemoteJsonController {
 
-    private DirectProcessor<String> processor = DirectProcessor.create();
+    private DirectProcessor<FlightSchedule> processor = DirectProcessor.create();
 
-    private FluxSink<String> sink;
+    private FluxSink<FlightSchedule> sink;
 
     @PostConstruct
     public void init() {
         sink = processor.sink();
     }
-
-
-    @GetMapping("ping")
-    public Mono<String> ping() {
-        sink.next("hi");
-        return Mono.just("hi");
-    }
-
-
-    @GetMapping("events")
-    public Flux<String> events() {
+    
+    @GetMapping(value = "events", produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+    public Flux<FlightSchedule> events() {
         return processor;
     }
 
 
     @PostMapping("accept")
-    public Mono<String> accept(@RequestBody String flightInfo) {
+    public Mono<FlightSchedule> accept(@RequestBody FlightSchedule flightInfo) {
         sink.next(flightInfo);
         return Mono.just(flightInfo);
     }
